@@ -1,0 +1,10 @@
+:80 {
+	handle_path /static/* {
+		root * /data/inventree/static
+		file_server
+	}
+
+	handle {
+		reverse_proxy inventree:8000
+	}
+}

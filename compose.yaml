@@ -1,0 +1,27 @@
+name: kit-readiness
+
+services:
+  inventree:
+    image: inventree/inventree:stable@sha256:0b7a1b433fcdc0459f92ea0526bf5ae3dd147d498a5afce5397611b7cebd5104
+    environment:
+      INVENTREE_SITE_URL: http://127.0.0.1:8400
+      INVENTREE_DB_ENGINE: sqlite3
+      INVENTREE_DB_NAME: /home/inventree/data/kit-readiness.sqlite3
+      INVENTREE_AUTO_UPDATE: 'True'
+      INVENTREE_ADMIN_USER: kit-demo
+      INVENTREE_ADMIN_EMAIL: kit-demo@example.test
+      INVENTREE_ADMIN_PASSWORD: kit-readiness-local-demo
+    volumes:
+      - inventree-data:/home/inventree/data
+  proxy:
+    image: caddy:2-alpine
+    depends_on:
+      - inventree
+    ports:
+      - '127.0.0.1:8400:80'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - inventree-data:/data/inventree:ro
+
+volumes:
+  inventree-data:
