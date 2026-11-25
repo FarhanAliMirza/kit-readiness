@@ -4,8 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kit Readiness</title>
+  <link rel="stylesheet" href="/static/vendor/driver.js/driver.css">
   <link rel="stylesheet" href="/static/styles.css">
-  <script defer src="/static/app.js"></script>
+  <script type="module" src="/static/app.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -16,8 +17,20 @@
   </header>
   <main>
     <div class="intro">
-      <h1>Workshop kit planner</h1>
-      <p>Check what you can assemble, where to find missing parts, and what to order.</p>
+      <div>
+        <h1>Workshop kit planner</h1>
+        <p>Check what you can assemble, where to find missing parts, and what to order.</p>
+      </div>
+      <fieldset id="demo-controls" class="demo-controls" disabled>
+        <label>Guided demo
+          <select id="demo-workflow">
+            <option value="readiness">Kit readiness</option>
+            <option value="transfer">Stock transfers</option>
+            <option value="purchase">Purchase planning</option>
+          </select>
+        </label>
+        <button type="button" id="start-demo">Start demo</button>
+      </fieldset>
     </div>
     <form id="plan-form">
       <fieldset id="inputs" disabled>
@@ -45,7 +58,7 @@
       </div>
       <div id="table-wrap" tabindex="0" role="region" aria-label="Component quantities"></div>
       <div id="details"></div>
-      <details class="trace">
+      <details class="trace" id="tool-trace">
         <summary>Synapse tool calls</summary>
         <ol id="trace-list"></ol>
       </details>

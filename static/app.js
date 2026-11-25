@@ -1,5 +1,9 @@
+import { startDemo } from "./tours.js";
+
 const byId = (id) => document.getElementById(id);
+const form = byId("plan-form");
 const inputs = byId("inputs");
+const demoControls = byId("demo-controls");
 const results = byId("results");
 const status = byId("status");
 const number = new Intl.NumberFormat(undefined, { maximumFractionDigits: 6 });
@@ -35,8 +39,9 @@ function populate(id, rows, preferred) {
   }));
 }
 
-function appendList(container, heading, items, empty) {
+function appendList(container, id, heading, items, empty) {
   const group = element("section");
+  group.id = id;
   group.className = "detail-group";
   group.append(element("h3", heading));
   if (items.length) {
@@ -97,14 +102,14 @@ function drawPlan(plan) {
     const transfers = plan.components.flatMap((row) => row.transfers.map(
       (transfer) => `Move ${format(transfer.quantity)} × ${row.name} from ${transfer.from} to ${plan.location}.`,
     ));
-    appendList(details, "Suggested transfers", transfers, "No transfers are available or needed.");
+    appendList(details, "suggested-transfers", "Suggested transfers", transfers, "No transfers are available or needed.");
   }
   if (plan.workflow === "purchase") {
     const inbound = plan.components.flatMap((row) => row.inbound.map((order) => {
       const explanation = order.reason || `${format(order.counted)} counted toward the shortfall`;
       return `${order.reference} · ${format(order.outstanding)} × ${row.name} · ${order.date || "Date unknown"} · ${explanation}.`;
     }));
-    appendList(details, "Open purchase orders", inbound, "There are no outstanding placed orders for these components.");
+    appendList(details, "open-orders", "Open purchase orders", inbound, "There are no outstanding placed orders for these components.");
   }
 
   byId("trace-list").replaceChildren(...plan.trace.map((call) => {
@@ -123,6 +128,7 @@ async function runPlan(workflow) {
     needed_by: byId("needed-by").value,
   };
   inputs.disabled = true;
+  demoControls.disabled = true;
   results.hidden = true;
   announce("Checking live inventory through Synapse…");
   try {
@@ -133,16 +139,23 @@ async function runPlan(workflow) {
     });
     drawPlan(plan);
     announce("");
+    return true;
   } catch (error) {
     announce(error.message, true);
+    return false;
   } finally {
     inputs.disabled = false;
+    demoControls.disabled = false;
   }
 }
 
-byId("plan-form").addEventListener("submit", (event) => {
+form.addEventListener("submit", (event) => {
   event.preventDefault();
   runPlan(event.submitter?.value || "readiness");
+});
+
+byId("start-demo").addEventListener("click", () => {
+  if (form.reportValidity()) startDemo(byId("demo-workflow").value, runPlan);
 });
 
 async function initialize() {
